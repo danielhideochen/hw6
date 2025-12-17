@@ -95,5 +95,39 @@ bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>
 								   std::string word, std::set<std::string>& result, unsigned int r, unsigned int c, int dr, int dc)
 {
 //add your solution here!
+    unsigned int n = board.size();
+    if(r >= n || c >= n) return false;
+
+    // extend the word with the current board letter
+    word.push_back(board[r][c]);
+
+    bool isWord   = (dict.find(word) != dict.end());
+    bool isPrefix = (prefix.find(word) != prefix.end());
+
+    // if it's not a word and can't become a longer word, stop
+    if(!isWord && !isPrefix) return false;
+
+    // try to extend further only if it can be a longer word
+    bool foundLonger = false;
+    if(isPrefix) {
+        int nr = static_cast<int>(r) + dr;
+        int nc = static_cast<int>(c) + dc;
+        if(nr >= 0 && nc >= 0 &&
+           nr < static_cast<int>(n) && nc < static_cast<int>(n)) {
+            foundLonger = boggleHelper(dict, prefix, board, word, result,
+                                       static_cast<unsigned int>(nr),
+                                       static_cast<unsigned int>(nc),
+                                       dr, dc);
+        }
+    }
+
+    // insert only if this is the longest word along this direction
+    if(!foundLonger && isWord) {
+        result.insert(word);
+        return true;
+    }
+
+    // return whether any word exists from here onward
+    return foundLonger || isWord;
 
 }
