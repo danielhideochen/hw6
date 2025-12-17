@@ -20,6 +20,34 @@ struct MyStringHash {
     HASH_INDEX_T operator()(const std::string& k) const
     {
         // Add your code here
+            // w[0..4], where w[4] is last 6 chars
+        unsigned long long w[5] = {0ULL,0ULL,0ULL,0ULL,0ULL};
+
+        int wi = 4;
+        int end = (int)k.size();
+        while(end > 0 && wi >= 0) {
+            int start = std::max(0, end - 6);
+            unsigned long long x = 0ULL;
+
+            // base-36 conversion left->right: x = x*36 + val
+            for(int i = start; i < end; i++) {
+                x = x * 36ULL + (unsigned long long)letterDigitToNumber(k[(size_t)i]);
+            }
+
+            w[wi] = x;
+            end = start;
+            wi--;
+        }
+
+        unsigned long long h =
+            (unsigned long long)rValues[0] * w[0] +
+            (unsigned long long)rValues[1] * w[1] +
+            (unsigned long long)rValues[2] * w[2] +
+            (unsigned long long)rValues[3] * w[3] +
+            (unsigned long long)rValues[4] * w[4];
+
+        return (HASH_INDEX_T)h;
+    
 
 
     }
@@ -28,6 +56,14 @@ struct MyStringHash {
     HASH_INDEX_T letterDigitToNumber(char letter) const
     {
         // Add code here or delete this helper function if you do not want it
+            // normalize case
+        if(letter >= 'A' && letter <= 'Z') letter = char(letter - 'A' + 'a');
+
+        if(letter >= 'a' && letter <= 'z') {
+            return (HASH_INDEX_T)(letter - 'a');           // a=0..z=25
+        }
+        // digits '0'..'9' -> 26..35
+        return (HASH_INDEX_T)(26 + (letter - '0'));
 
     }
 
